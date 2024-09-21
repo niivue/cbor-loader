@@ -3,12 +3,22 @@
   "version": "1.0.0",
   "main": "src/loader.js",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/niivue/cbor-loader.git"
+  },
   "files": ["src/loader.js"],
   "scripts": {
     "test": "vitest"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "nii",
+    "cbor",
+    "loader",
+    "itk",
+    "niivue"
+  ],
+  "author": "NiiVue developers",
   "license": "BSD-2-Clause",
   "description": "",
   "dependencies": {
