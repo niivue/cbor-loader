@@ -17,10 +17,16 @@ export function iwm2meshCore(iwm) {
   ) {
     throw new Error('.iwm.cbor must have "meshType", "cells" and "points".')
   }
-  // convert bigint to uint32
-  const cells = new Uint32Array(iwm.cells.length)
-  for (let i = 0; i < iwm.cells.length; i++) {
-    cells[i] = Number(iwm.cells[i] & BigInt(0xffffffff))
+  let cells
+  if ((iwm.cells instanceof BigUint64Array) || (iwm.cells instanceof BigInt64Array)) {
+    cells = new Uint32Array(iwm.cells.length)
+    for (let i = 0; i < iwm.cells.length; i++) {
+      cells[i] = Number(iwm.cells[i] & BigInt(0xffffffff))
+    }
+  } else if (iwm.cells[0] instanceof Uint32Array || typeof iwm.cells[0] === 'number') {
+    cells = new Uint32Array(iwm.cells)
+  } else {
+    throw new Error("Unsupported data type in iwm.cells")
   }
   // 1st pass: count triangles
   let ntri = 0
@@ -30,7 +36,7 @@ export function iwm2meshCore(iwm) {
     const cellType = cells[i]
     const cellNum = cells[i + 1]
     if (cellType < 2 || cellType < 2 || cellNum < 3) {
-      throw new Error('unsupported iwm cell type', cellType, cellNum)
+      throw new Error(`unsupported iwm cell type ${cellType} or cellNum ${cellNum}`)
     }
     i += cellNum + 2 // skip cellNum, cellType and elements
     ntri += cellNum - 2 // e.g. TRIANGLE has 1 tri, QUAD has 2
