@@ -128,94 +128,6 @@ export function mesh2iwm(pts, tris, isEncodeCBOR = true) {
   return iwm
 }
 
-// n.b. : largely duplicates of /nvimage/utils.ts but avoids dependency
-function str2BufferX(str, maxLen) {
-  // emulate node.js Buffer.from
-  // remove characters than could be used for shell expansion
-  str = str.replace(/[`$]/g, '')
-  const bytes = []
-  const len = Math.min(maxLen, str.length)
-  for (let i = 0; i < len; i++) {
-    const char = str.charCodeAt(i)
-    bytes.push(char & 0xff)
-  }
-  return bytes
-}
-// save NIfTI header into UINT8 array for saving to disk
-export function hdrToArrayBufferX(hdr) {
-  const SHORT_SIZE = 2
-  const FLOAT32_SIZE = 4
-  const isLittleEndian = true
-  const byteArray = new Uint8Array(348)
-  const view = new DataView(byteArray.buffer)
-  view.setInt32(0, 348, isLittleEndian)
-  // data_type, db_name, extents, session_error, regular are not used
-  // regular set to 'r' (ASCII 114) for Analyze compatibility
-  view.setUint8(38, 114)
-  // dim_info
-  view.setUint8(39, hdr.dim_info)
-  // dims
-  for (let i = 0; i < 8; i++) {
-    view.setUint16(40 + SHORT_SIZE * i, hdr.dims[i], isLittleEndian)
-  }
-  // intent_p1, intent_p2, intent_p3
-  view.setFloat32(56, hdr.intent_p1, isLittleEndian)
-  view.setFloat32(60, hdr.intent_p2, isLittleEndian)
-  view.setFloat32(64, hdr.intent_p3, isLittleEndian)
-  // intent_code, datatype, bitpix, slice_start
-  view.setInt16(68, hdr.intent_code, isLittleEndian)
-  view.setInt16(70, hdr.datatypeCode, isLittleEndian)
-  view.setInt16(72, hdr.numBitsPerVoxel, isLittleEndian)
-  view.setInt16(74, hdr.slice_start, isLittleEndian)
-  // pixdim[8], vox_offset, scl_slope, scl_inter
-  for (let i = 0; i < 8; i++) {
-    view.setFloat32(76 + FLOAT32_SIZE * i, hdr.pixDims[i], isLittleEndian)
-  }
-  view.setFloat32(108, 352, isLittleEndian)
-  view.setFloat32(112, hdr.scl_slope, isLittleEndian)
-  view.setFloat32(116, hdr.scl_inter, isLittleEndian)
-  view.setInt16(120, hdr.slice_end, isLittleEndian)
-  // slice_code, xyzt_units
-  view.setUint8(122, hdr.slice_code)
-  if (hdr.xyzt_units === 0) {
-    view.setUint8(123, 10)
-  } else {
-    view.setUint8(123, hdr.xyzt_units)
-  }
-  // cal_max, cal_min, slice_duration, toffset
-  view.setFloat32(124, hdr.cal_max, isLittleEndian)
-  view.setFloat32(128, hdr.cal_min, isLittleEndian)
-  view.setFloat32(132, hdr.slice_duration, isLittleEndian)
-  view.setFloat32(136, hdr.toffset, isLittleEndian)
-  // glmax, glmin are unused
-  // descrip and aux_file
-  byteArray.set(str2BufferX(hdr.description), 148)
-  byteArray.set(str2BufferX(hdr.aux_file), 228)
-  // qform_code, sform_code
-  view.setInt16(252, hdr.qform_code, isLittleEndian)
-  // if sform unknown, assume NIFTI_XFORM_SCANNER_ANAT
-  if (hdr.sform_code < 1 || hdr.sform_code < 1) {
-    view.setInt16(254, 1, isLittleEndian)
-  } else {
-    view.setInt16(254, hdr.sform_code, isLittleEndian)
-  }
-  // quatern_b, quatern_c, quatern_d, qoffset_x, qoffset_y, qoffset_z, srow_x[4], srow_y[4], and srow_z[4]
-  view.setFloat32(256, hdr.quatern_b, isLittleEndian)
-  view.setFloat32(260, hdr.quatern_c, isLittleEndian)
-  view.setFloat32(264, hdr.quatern_d, isLittleEndian)
-  view.setFloat32(268, hdr.qoffset_x, isLittleEndian)
-  view.setFloat32(272, hdr.qoffset_y, isLittleEndian)
-  view.setFloat32(276, hdr.qoffset_z, isLittleEndian)
-  const flattened = hdr.affine.flat()
-  // we only want the first three rows
-  for (let i = 0; i < 12; i++) {
-    view.setFloat32(280 + FLOAT32_SIZE * i, flattened[i], isLittleEndian)
-  }
-  // magic
-  view.setInt32(344, 3222382, true) // "n+1\0"
-  return byteArray
-}
-
 // Input is ITK IWI, output is NIfTI
 export function iwi2niiCore(iwi) {
   if (
@@ -293,12 +205,10 @@ export function iwi2niiCore(iwi) {
     ]
   }
   // console.log(hdr)
-  const hdrBytes = hdrToArrayBufferX({ ...hdr, vox_offset: 352 })
-  const opad = new Uint8Array(4)
-  const odata = new Uint8Array(hdrBytes.length + opad.length + img8.length)
-  odata.set(hdrBytes)
-  odata.set(opad, hdrBytes.length)
-  odata.set(img8, hdrBytes.length + opad.length)
+  const hdrBytes = hdr.toArrayBuffer()
+  const odata = new Uint8Array(hdrBytes.byteLength + img8.byteLength)
+  odata.set(new Uint8Array(hdrBytes), 0)
+  odata.set(img8, hdrBytes.byteLength)
   return odata
 }
 

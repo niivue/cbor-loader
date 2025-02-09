@@ -25,7 +25,7 @@
   "description": "",
   "dependencies": {
     "cbor-x": "^1.6.0",
-    "nifti-reader-js": "^0.6.8"
+    "nifti-reader-js": "^0.7.1"
   },
   "devDependencies": {
     "vitest": "^2.1.1"
