@@ -21,7 +21,7 @@ export function iwm2meshCore(iwm) {
   if ((iwm.cells instanceof BigUint64Array) || (iwm.cells instanceof BigInt64Array)) {
     cells = new Uint32Array(iwm.cells.length)
     for (let i = 0; i < iwm.cells.length; i++) {
-      cells[i] = Number(iwm.cells[i] & BigInt(0xffffffff))
+      cells[i] = Number(BigInt(iwm.cells[i]) & BigInt(0xffffffff))
     }
   } else if (iwm.cells[0] instanceof Uint32Array || typeof iwm.cells[0] === 'number') {
     cells = new Uint32Array(iwm.cells)
@@ -144,7 +144,7 @@ export function iwi2niiCore(iwi) {
   hdr.dims[0] = iwi.size.length
   let nvox = 1
   for (let i = 0; i < iwi.size.length; i++) {
-    hdr.dims[i + 1] = Number(iwi.size[i] & BigInt(0xffffffff))
+    hdr.dims[i + 1] = Number(BigInt(iwi.size[i]) & BigInt(0xffffffff))
     nvox *= Math.max(hdr.dims[i + 1], 1)
   }
   // set pixDims

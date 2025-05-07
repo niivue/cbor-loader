@@ -1,6 +1,6 @@
 {
   "name": "@niivue/cbor-loader",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "src/loader.js",
   "type": "module",
   "repository": {
@@ -8,9 +8,12 @@
     "url": "https://github.com/niivue/cbor-loader.git"
   },
   "files": [
-    "src/loader.js"
+    "src/loader.js",
+    "dist/index.js",
+    "dist/index.min.js"
   ],
   "scripts": {
+    "build": "esbuild --bundle --format=esm --outfile=./dist/index.js ./src/loader.js && esbuild --minify --bundle --format=esm --outfile=./dist/index.min.js ./src/loader.js",
     "test": "vitest"
   },
   "keywords": [
@@ -28,6 +31,7 @@
     "nifti-reader-js": "^0.7.1"
   },
   "devDependencies": {
+    "esbuild": "^0.25.2",
     "vitest": "^2.1.1"
   }
 }
