@@ -1,6 +1,12 @@
-# niivue-itk-wasm
+# @niivue/cbor-loader
 
-itkwasm enables universal [image and mesh processing](https://wasm.itk.org/en/latest/introduction/packages.html) via WebAssembly (wasm). However, itkwasm uses its own [binary format for images (iwi) and meshes (iwm)](https://wasm.itk.org/en/latest/introduction/file_formats/index.html). Therefore, for other tools to use itkwasm, they must read and write these formats. This repository converts between the popular [NIfTI image format](https://brainder.org/2012/09/23/the-nifti-file-format/) and iwi, and converts between triangular meshes (defined by vertex position and vertex indices) and iwm. This allows tools like NiiVue to use itkwasm functions. To see this in action, try the [live demo](https://niivue.github.io/niivue-itk-wasm/)
+ITK-Wasm enables universal [image and mesh processing](https://wasm.itk.org/en/latest/introduction/packages.html) via WebAssembly (wasm). However, itkwasm uses its own [binary format for images (iwi) and meshes (iwm)](https://wasm.itk.org/en/latest/introduction/file_formats/index.html). Therefore, for other tools to use itkwasm, they must read and write these formats. This repository converts between the popular [NIfTI image format](https://brainder.org/2012/09/23/the-nifti-file-format/) and iwi, and converts between triangular meshes (defined by vertex position and vertex indices) and iwm. This allows tools like NiiVue to use itkwasm functions. To see this in action, try the [live demo](https://niivue.github.io/niivue-itk-wasm/)
+
+## Installation
+
+```bash
+npm install @niivue/cbor-loader
+```
 
 ## Creating validation IWI images
 
